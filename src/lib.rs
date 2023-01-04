@@ -1,3 +1,4 @@
+use log::info;
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 use yew::{
@@ -9,8 +10,7 @@ use yew::{
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ResponseData {
-   message: String,
-   status: String,
+    message: String
 }
 
 #[derive(Debug)]
@@ -29,18 +29,22 @@ pub struct Model {
     error: Option<String>,
 }
 
+pub enum Animal {
+    Dog,
+    Fox
+}
+
 impl Model {
     fn success(&self) -> Html {
         match self.data {
             Some(ref res) => {
-                    log::info!("{:?}", res.message);
-                    log::info!("{:?}", res.status);
-                html! {
-                    <>
-                        <p class="sum">{&res.status}</p>
-                        <img src={&res.message} />
-                    </>
-                }
+                info!("{:?}", res.message);
+                    html! {
+                        <>
+                            <p class="sum">{&"success"}</p>
+                            <img src={&res.message} />
+                        </>
+                    }
             }
             None => {
                 html! {
@@ -92,8 +96,19 @@ impl Component for Model {
     fn update(&mut self, msg: Self::Message) -> bool {
         match msg {
             Msg::StartFetch => {
+                let animal: Animal = Animal::Dog;
+                let uri;
+
+                match animal {
+                    Animal::Dog => {
+                        uri = "https://dog.ceo/api/breeds/image/random";
+                    }
+                    Animal::Fox => {
+                        uri = "https://randomfox.ca/floof/";
+                    }
+                };
                 let request = Request::get(
-                    "https://dog.ceo/api/breeds/image/random",
+                    uri,
                 )
                 .body(Nothing)
                 .expect("Could not build request.");
