@@ -1,4 +1,3 @@
-use log::info;
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 use yew::{
@@ -38,10 +37,9 @@ impl Model {
     fn success(&self) -> Html {
         match self.data {
             Some(ref res) => {
-                info!("{:?}", res.message);
                     html! {
                         <>
-                            <p class="sum">{&"success"}</p>
+                            <p class="sum">{&r"\ success /"}</p>
                             <img src={&res.message} />
                         </>
                     }
@@ -96,17 +94,8 @@ impl Component for Model {
     fn update(&mut self, msg: Self::Message) -> bool {
         match msg {
             Msg::StartFetch => {
-                let animal: Animal = Animal::Dog;
-                let uri;
+                let uri = "https://dog.ceo/api/breeds/image/random";
 
-                match animal {
-                    Animal::Dog => {
-                        uri = "https://dog.ceo/api/breeds/image/random";
-                    }
-                    Animal::Fox => {
-                        uri = "https://randomfox.ca/floof/";
-                    }
-                };
                 let request = Request::get(
                     uri,
                 )
@@ -146,7 +135,8 @@ impl Component for Model {
     fn view(&self) -> Html {
         html! {
             <div class="container">
-                <h3 class="title">{&"Random Dog"}</h3>
+                <h2 class="title">{&"Random Dog"}</h2>
+                <button onclick=self.link.callback(|_| Msg::StartFetch)>{"次のわんこと出会う"}</button>
                 {
                     match (self.is_loading, self.data.as_ref(), self.error.as_ref()) {
                         (true, _, _) => {
@@ -164,7 +154,6 @@ impl Component for Model {
 
                     }
                 }
-                <button onclick=self.link.callback(|_| Msg::StartFetch)>{"refetch"}</button>
             </div>
         }
     }

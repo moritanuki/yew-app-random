@@ -1,0 +1,4 @@
+package.json
+wasm_bg.wasm
+*.ts
+*.js
