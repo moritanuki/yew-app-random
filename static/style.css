@@ -10,12 +10,8 @@ body {
   text-align: center;
 }
 
-.container {
-  max-width: 600px;
-}
-
-image {
-  width: 100%;
+img {
+  width: 600px;
   height: auto;
 }
 
@@ -24,6 +20,7 @@ button {
   color: #fff;
   border: 0;
   padding: 10px 20px;
+  margin: 0 10px;
   border-radius: 5px;
   cursor: pointer;
 }

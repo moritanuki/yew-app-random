@@ -1,4 +1,7 @@
+#![recursion_limit = "500"]
+
 use serde::Deserialize;
+use serde_json::Value;
 use wasm_bindgen::prelude::*;
 use yew::{
     format::{Json, Nothing},
@@ -8,14 +11,10 @@ use yew::{
 };
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct ResponseData {
-    message: String
-}
 
-#[derive(Debug)]
 pub enum Msg {
-    StartFetch,
-    SuccessFetch(ResponseData),
+    StartFetch(String),
+    SuccessFetch(serde_json::Value),
     FailFetch,
 }
 
@@ -23,7 +22,7 @@ pub enum Msg {
 pub struct Model {
     ft: Option<FetchTask>,
     is_loading: bool,
-    data: Option<ResponseData>,
+    data: Option<serde_json::Value>,
     link: ComponentLink<Self>,
     error: Option<String>,
 }
@@ -37,12 +36,42 @@ impl Model {
     fn success(&self) -> Html {
         match self.data {
             Some(ref res) => {
-                    html! {
-                        <>
-                            <p class="sum">{&r"\ success /"}</p>
-                            <img src={&res.message} />
-                        </>
+                let base_html = html! {
+                    <>
+                        <p class="sum">{&r"\ empty /"}</p>
+                    </>
+                };
+
+                match res {
+                    Value::Object(map) => {
+                        if map.contains_key("message") {
+                            let message = map.get("message").unwrap().as_str();
+                            html! {
+                                <>
+                                    <p class="sum">{&r"\ success /"}</p>
+                                    <img src={message.unwrap()} />
+                                </>
+                            }
+                        } else if map.contains_key("image") {
+                            let image = map.get("image").unwrap().as_str();
+                            html! {
+                                <>
+                                    <p class="sum">{&r"\ success /"}</p>
+                                    <img src={image.unwrap()} />
+
+                                </>
+                            }
+                        } else {
+                            base_html
+                        }
+
                     }
+                    _ => {
+                        base_html
+                    }
+
+                }
+                    
             }
             None => {
                 html! {
@@ -64,13 +93,14 @@ impl Model {
         }
     }
 }
+
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
     // コンポーネント作成時に呼ばれるライフサイクルメソッド
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        link.send_message(Msg::StartFetch);
+        link.send_message(Msg::StartFetch("Dog".to_string()));
 
         Self {
             ft: None,
@@ -93,8 +123,12 @@ impl Component for Model {
     // msg が送られるたびに呼ばれる関数
     fn update(&mut self, msg: Self::Message) -> bool {
         match msg {
-            Msg::StartFetch => {
-                let uri = "https://dog.ceo/api/breeds/image/random";
+            Msg::StartFetch(animal) => {
+                let uri = match animal.as_str() {
+                    "Dog" => "https://dog.ceo/api/breeds/image/random",
+                    "Fox" => "https://randomfox.ca/floof/",
+                    _ => "https://dog.ceo/api/breeds/image/random",
+                };
 
                 let request = Request::get(
                     uri,
@@ -104,7 +138,7 @@ impl Component for Model {
 
                 // callbackの組み立て
                 let callback = self.link.callback(
-                    |response: Response<Json<Result<ResponseData, anyhow::Error>>>| {
+                    |response: Response<Json<Result<Value, anyhow::Error>>>| {
                         let Json(data) = response.into_body();
 
                         match data {
@@ -135,8 +169,9 @@ impl Component for Model {
     fn view(&self) -> Html {
         html! {
             <div class="container">
-                <h2 class="title">{&"Random Dog"}</h2>
-                <button onclick=self.link.callback(|_| Msg::StartFetch)>{"次のわんこと出会う"}</button>
+                <h2 class="title">{&"Random Dog Or Fox"}</h2>
+                <button onclick=self.link.callback(|_| Msg::StartFetch("Dog".to_string()))>{"わんこ"}</button>
+                <button onclick=self.link.callback(|_| Msg::StartFetch("Fox".to_string()))>{"きつね"}</button>
                 {
                     match (self.is_loading, self.data.as_ref(), self.error.as_ref()) {
                         (true, _, _) => {
