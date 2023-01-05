@@ -168,27 +168,28 @@ impl Component for Model {
 
     fn view(&self) -> Html {
         html! {
-            <div class="container">
-                <h2 class="title">{&"Random Dog Or Fox"}</h2>
-                <button onclick=self.link.callback(|_| Msg::StartFetch("Dog".to_string()))>{"わんこ"}</button>
-                <button onclick=self.link.callback(|_| Msg::StartFetch("Fox".to_string()))>{"きつね"}</button>
-                {
-                    match (self.is_loading, self.data.as_ref(), self.error.as_ref()) {
-                        (true, _, _) => {
-                            self.fetching()
+            <div>
+                <h2 class="title">{"Random Dog Or Fox"}</h2>
+                <div class="container">
+                    <button onclick=self.link.callback(|_| Msg::StartFetch("Dog".to_string()))>{"わんこ"}</button>
+                    <button onclick=self.link.callback(|_| Msg::StartFetch("Fox".to_string()))>{"きつね"}</button>
+                    {
+                        match (self.is_loading, self.data.as_ref(), self.error.as_ref()) {
+                            (true, _, _) => {
+                                self.fetching()
+                            }
+                            (false, Some(ResponseData), None) => {
+                                self.success()
+                            }
+                            (false, None, None) => {
+                                self.fail()
+                            }
+                            (_,_,_)=>{
+                                self.fail()
+                            }
                         }
-                        (false, Some(ResponseData), None) => {
-                            self.success()
-                        }
-                        (false, None, None) => {
-                            self.fail()
-                        }
-                        (_,_,_)=>{
-                            self.fail()
-                        }
-
                     }
-                }
+                </div>
             </div>
         }
     }

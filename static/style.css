@@ -8,6 +8,7 @@ body {
   justify-items: center;
   align-items: center;
   text-align: center;
+  overflow-x: hidden;
 }
 
 img {
@@ -23,4 +24,12 @@ button {
   margin: 0 10px;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.title {
+  margin: 0 calc(50% - 50vw) 20px;
+  padding: 20px 0;
+  background-color: #333;
+  text-align: center;
+  color: #f4f4f4;
 }
